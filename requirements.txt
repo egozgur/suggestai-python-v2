@@ -1,0 +1,4 @@
+bardapi==0.1.30
+beautifulsoup4==4.12.2
+python-dotenv==1.0.0
+Flask==2.3.2

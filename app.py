@@ -9,6 +9,8 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 load_dotenv()
 
+my_variable = os.getenv("MY_VARIABLE")
+
 
 @app.route('/', methods=['GET', 'POST'])
 def get_bard_answer():
