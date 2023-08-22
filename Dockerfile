@@ -1,6 +1,8 @@
-FROM python:3.9
-WORKDIR /app
+FROM python:3.8
+WORKDIR /suggestai-python-v2
 COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+RUN pip3 install -r requirements.txt
 COPY . .
-CMD ["python", "app.py"]
+CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+
+

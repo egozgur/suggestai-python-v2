@@ -15,7 +15,7 @@ my_variable = os.getenv("MY_VARIABLE")
 @app.route('/', methods=['GET', 'POST'])
 def get_bard_answer():
     if request.method == 'GET':
-        return "Wellcome bard api"
+        return "Welcome bard api"
     elif request.method == 'POST':
         data = request.get_json(force=True)
         if not data or 'message' not in data:
@@ -23,7 +23,7 @@ def get_bard_answer():
 
         message = data['message']
         bard_instance = Bard()
-        response = bard_instance.get_answer(str(message))
+        response = bard_instance.get_answer(str(my_variable + message))
 
         cleaned_response = clean_response_text(response['content'])
         return jsonify({"responseText": cleaned_response}), 200, {'Content-Type': 'application/json; charset=utf-8'}
@@ -37,4 +37,4 @@ def clean_response_text(text):
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5001)
+    app.run()
