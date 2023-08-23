@@ -9,7 +9,7 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 load_dotenv()
 
-my_variable = os.getenv("MY_VARIABLE")
+my_env_variable = os.getenv("MY_VARIABLE")
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -17,24 +17,35 @@ def get_bard_answer():
     if request.method == 'GET':
         return "Welcome bard api"
     elif request.method == 'POST':
-        data = request.get_json(force=True)
-        if not data or 'message' not in data:
-            return jsonify({"error": "Please Write valid Question in JSON format."}), 400
+        request_data = request.get_json(force=True)
+        if not request_data or 'message' not in request_data:
+            return jsonify({"error": "Please Write valid message in JSON format."}), 400
 
-        message = data['message']
+        message = request_data['message']
         bard_instance = Bard()
-        response = bard_instance.get_answer(str(my_variable + message))
+        bard_response = bard_instance.get_answer(str(my_env_variable + message))
 
-        cleaned_response = clean_response_text(response['content'])
-        return jsonify({"responseText": cleaned_response}), 200, {'Content-Type': 'application/json; charset=utf-8'}
+        cleaned_bard_response = BeautifulSoup(bard_response['content'], 'html.parser').get_text()
+        cleaned_bard_response = ''.join(c for c in cleaned_bard_response if unicodedata.category(c) != 'Mn')
+        enhanced_bard_response = enhance_response(cleaned_bard_response)
+
+        return jsonify({"responseText": enhanced_bard_response}), 200, {'Content-Type': 'application/json; charset=utf-8'}
 
 
 def clean_response_text(text):
-    cleaned_text = text.replace("\n", "").replace("\r", "")
+    cleaned_text = text.replace("\n", "").replace("\r", "").replace("*", " ")
+
     cleaned_text = BeautifulSoup(cleaned_text, 'html.parser').get_text()
     cleaned_text = ''.join(c for c in cleaned_text if unicodedata.category(c) != 'Mn')
     return cleaned_text
 
 
+def enhance_response(enhanced_text):
+    enhanced_text = enhanced_text.replace(".\r\n\r\n", ". ")
+    enhanced_text = enhanced_text.replace("\r\n", " ").replace("\n", " ").replace("\r", " ").replace("*", " ")
+
+    return enhanced_text
+
+
 if __name__ == '__main__':
-    app.run()
+    app.run(port=5001)  # run app in debug mode on port 5001
