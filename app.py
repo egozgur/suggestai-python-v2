@@ -6,10 +6,8 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 
-app = Flask(__name__)
+app: Flask = Flask(__name__)
 load_dotenv()
-
-my_env_variable = os.getenv("MY_VARIABLE")
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -23,13 +21,14 @@ def get_bard_answer():
 
         message = request_data['message']
         bard_instance = Bard()
-        bard_response = bard_instance.get_answer(str(my_env_variable + message))
+        bard_response = bard_instance.get_answer(str(message))
 
         cleaned_bard_response = BeautifulSoup(bard_response['content'], 'html.parser').get_text()
         cleaned_bard_response = ''.join(c for c in cleaned_bard_response if unicodedata.category(c) != 'Mn')
         enhanced_bard_response = enhance_response(cleaned_bard_response)
 
-        return jsonify({"responseText": enhanced_bard_response}), 200, {'Content-Type': 'application/json; charset=utf-8'}
+        return jsonify({"responseText": enhanced_bard_response}), 200, {
+            'Content-Type': 'application/json; charset=utf-8'}
 
 
 def clean_response_text(text):
@@ -48,4 +47,4 @@ def enhance_response(enhanced_text):
 
 
 if __name__ == '__main__':
-    app.run(port=5001)  # run app in debug mode on port 5001
+    app.run(port=5000)  # run app in debug mode on port 5001
