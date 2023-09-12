@@ -1,5 +1,6 @@
 import os
 import unicodedata
+import uuid
 
 from bardapi import Bard
 from bs4 import BeautifulSoup
@@ -8,6 +9,13 @@ from flask import Flask, request, jsonify
 
 app: Flask = Flask(__name__)
 load_dotenv()
+
+
+def generate_unique_session_id():
+    return str(uuid.uuid4())
+
+
+user_messages = []
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -20,8 +28,13 @@ def get_bard_answer():
             return jsonify({"error": "Please Write valid message in JSON format."}), 400
 
         message = request_data['message']
+
+        user_messages.append(message)
+
+        latest_user_message = user_messages[-1]
+
         bard_instance = Bard()
-        bard_response = bard_instance.get_answer(str(message))
+        bard_response = bard_instance.get_answer(str(latest_user_message))
 
         cleaned_bard_response = BeautifulSoup(bard_response['content'], 'html.parser').get_text()
         cleaned_bard_response = ''.join(c for c in cleaned_bard_response if unicodedata.category(c) != 'Mn')
